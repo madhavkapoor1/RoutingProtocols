@@ -1,5 +1,23 @@
 #include "../include/node.hpp"
 
+/**
+ * @brief Calculates the distance vector for the routing protocol.
+ * 
+ * This function iterates through the adjacency list and calculates the distance vector
+ * for each node in the network. The distance vector contains information about the
+ * shortest path and cost to reach each destination node.
+ * 
+ * @details The function uses the Bellman-Ford algorithm to calculate the distance vector.
+ * It initializes the distance vector for each node with an initial cost of infinity, except
+ * for the current node which has a cost of 0. Then, it iterates through each destination node
+ * and updates the cost and next hop information based on the neighboring nodes' distance vectors.
+ * 
+ * @note The function assumes that the adjacency list and distance vector data structures have
+ * already been initialized and populated with the appropriate values.
+ * 
+ * @param None
+ * @return None
+ */
 void distance_vector(){
     for(int count = 1; count < adj_list.size(); count++){
         vector<pair<int,int>> temp = adj_list[count];

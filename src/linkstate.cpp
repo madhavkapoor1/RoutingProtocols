@@ -1,56 +1,48 @@
-#include "../include/node.hpp"
+#include "node.hpp"
 
-//function dijkstra(G, S)
-    // for each vertex V in G
-    //     dist[V] <- infinite
-    //     prev[V] <- NULL
-    //     If V != S, add V to Priority Queue Q
-    // dist[S] <- 0
-    
-    // while Q IS NOT EMPTY
-    //     U <- Extract MIN from Q
-    //     for each unvisited neighbour V of U
-    //         temperoryDist <- dist[U] + edgeWeight(U, V)
-    //         if temperoryDist < dist[V]
-    //             dist[V] <- temperoryDist
-    //             prev[V] <- U
-    // return dist[], prev[]
+/**
+ * @brief Performs Dijkstra's algorithm to find the shortest path from each node to all other nodes in the graph.
+ *
+ * This function uses Dijkstra's algorithm to calculate the shortest path from each node to all other nodes in the graph.
+ * It initializes the distance and next hop arrays, and uses a priority queue to process the nodes in order of their distances.
+ * The function updates the distance and next hop arrays as it explores the graph, and stores the results in the distance vector.
+ *
+ * @note This function assumes that the adjacency list and other necessary data structures have been initialized before calling it.
+ */
+void dijkstra() {
+    for(int i = 1; i< adj_list.size(); i++){
+        int src = i;
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, compare> pq;        vector<int> dist(adj_list.size(), INT_MAX);
+        vector<int> nextHops(adj_list.size(), -1);
+        dist[i] = 0;
+        nextHops[i] = i;
+        pq.push(make_tuple(0, i, i));
+        while(!pq.empty()){
+            int dis = get<0>(pq.top());
+            int node = get<1>(pq.top());
+            int prev = get<2>(pq.top());
 
-void dijkstra(int source) {
-    int n = adj_list.size(); // Number of vertices
-    dist_vector.clear();
-    dist_vector.resize(n, vector<Node>(n, {0, 0, INT_MAX})); // Initialize distances as infinite, except for the source
-    
-    // Custom comparator for the priority queue
-    auto compare = [](const pair<int, int>& left, const pair<int, int>& right) {
-        return left.second > right.second;
-    };
-    
-    priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(compare)> pq(compare);
-
-    pq.push({source, 0});
-    dist_vector[source][source] = {source, source, 0}; // Distance to itself is 0
-
-    vector<bool> visited(n, false); // Keep track of visited nodes
-
-    while (!pq.empty()) {
-        int u = pq.top().first;
-        pq.pop();
-
-        if (visited[u]) continue; // If already visited, skip
-        visited[u] = true;
-
-        for (auto& edge : adj_list[u]) {
-            int v = edge.first, weight = edge.second;
-
-            if (dist_vector[source][v].cost > dist_vector[source][u].cost + weight) {
-                // Update the distance vector for the better path
-                dist_vector[source][v].destination = v;
-                dist_vector[source][v].nextHop = (u == source) ? v : dist_vector[source][u].nextHop;
-                dist_vector[source][v].cost = dist_vector[source][u].cost + weight;
-
-                pq.push({v, dist_vector[source][v].cost});
+            pq.pop();
+            for(auto it : adj_list[node]){
+                int edgeweight = it.second;
+                int adjNode = it.first;
+                if(node == i){
+                    prev = adjNode;
+                }
+            
+                if(dis + edgeweight < dist[adjNode]){
+                    dist[adjNode] = dis + edgeweight;
+                    nextHops[adjNode] = prev;
+                    pq.push(make_tuple(dist[adjNode], adjNode, prev));
+                }
             }
+        }
+        for(int j = 1; j < adj_list.size(); j++){
+            Node temp;
+            temp.destination = j;
+            temp.nextHop = nextHops[j];
+            temp.cost = dist[j];
+            dist_vector[src].push_back(temp);
         }
     }
 }
@@ -88,15 +80,13 @@ int main(int argc, char *argv[]){
     extract_message(argv[2]);
     extract_changes(argv[3]);
 
+    dijkstra();
     const char *op = argv[4] == NULL ? "output.txt" : argv[4];
-
+    print_distance_vector(op);
     for(int count = 0; count < msg.size() ; count++){
-        int source = msg[count].first;
-        int destination = msg[count].second.first;
-        dijkstra(source);
-        print_distance_vector(op);
-        vector<int> hops = tot_hops(source, destination);
-        add_hops_message(op, source, destination, hops, msg[count].second.second);
+       // cout<<"here"<<endl;
+        vector<int> hops = tot_hops(msg[count].first, msg[count].second.first);        
+        add_hops_message(op, msg[count].first, msg[count].second.first, hops, msg[count].second.second);
     }
 
     dist_vector.clear();
@@ -105,37 +95,23 @@ int main(int argc, char *argv[]){
         if(changes[count].second.second == -999){
             delete_edge(changes[count].first, changes[count].second.first);
         }else{
+           // cout << "Updating weight of edge " << changes[count].first << " " << changes[count].second.first << " to " << changes[count].second.second << endl;
             update_weight(changes[count].first, changes[count].second.first, changes[count].second.second);
+           // print_graph();
         }
 
         dist_vector.clear();
         dis_vec_init(vertices);
         
-        for(int count = 0; count < vertices; count++) dijkstra(count);
+        dijkstra();
         print_distance_vector(op);
         
         for(int count = 0; count < msg.size() ; count++){
-            int source = msg[count].first;
-            int destination = msg[count].second.first;
-            vector<int> hops = tot_hops(source, destination);  
-            add_hops_message(op, source, destination, hops, msg[count].second.second);
+           // cout<<"here"<<endl;
+            vector<int> hops = tot_hops(msg[count].first, msg[count].second.first);  
+            add_hops_message(op, msg[count].first, msg[count].second.first, hops,msg[count].second.second);
         }
     }
 
     return 0;
-}
-
-void run_dijkstra_for_each_line(const string& messageFile) {
-    ifstream file(messageFile);
-    string line;
-    while (getline(file, line)) {
-        if (line.length() >= 3) {
-            int source = line[0] - '0';
-            int destination = line[2] - '0';
-            dijkstra(source);
-            // Perform operations with the obtained shortest path from source to destination
-            // ...
-        }
-    }
-    file.close();
 }
