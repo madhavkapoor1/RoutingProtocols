@@ -1,4 +1,5 @@
-#include "../include/node.hpp"
+#include "common.hpp"
+
 
 /**
  * @brief Calculates the distance vector for the routing protocol.
@@ -19,6 +20,7 @@
  * @return None
  */
 void distance_vector(){
+    // Implementation of bellman ford algorithm
     for(int count = 1; count < adj_list.size(); count++){
         vector<pair<int,int>> temp = adj_list[count];
         for(int dst = 1; dst < adj_list.size(); dst++){
@@ -44,6 +46,9 @@ void distance_vector(){
                             vec.cost = distance;
                             vec.nextHop = neighbour.first;
                         }
+                        else if(distance == vec.cost && neighbour.first < vec.nextHop){
+                            vec.nextHop = neighbour.first;
+                        }
                     }else if(neighbour.first == dst){
                         if(vec.cost > neighbour.second){
                             vec.cost = neighbour.second;
@@ -61,7 +66,6 @@ void distance_vector(){
         }
     }
 }
-
 
 int main(int argc, char *argv[]){
     if(argc != 4){

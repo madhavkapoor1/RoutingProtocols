@@ -1,4 +1,4 @@
-#include "node.hpp"
+#include "common.hpp"
 
 /**
  * @brief Performs Dijkstra's algorithm to find the shortest path from each node to all other nodes in the graph.
