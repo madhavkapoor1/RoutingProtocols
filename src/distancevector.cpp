@@ -119,7 +119,10 @@ int main(int argc, char *argv[]){
             update_weight(changes[count].first, changes[count].second.first, changes[count].second.second);
            // print_graph();
         }
-
+        if(changes[count].first > vertices || changes[count].second.first > vertices){
+            vertices = max(changes[count].first, changes[count].second.first);
+        }
+        
         dist_vector.clear();
         dis_vec_init(vertices);
         

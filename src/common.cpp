@@ -78,7 +78,7 @@ void graph_edge(int n, int m, int weight){
 void update_weight(int n, int m, int weight){
     int i = 0;
     int greater = n >= m ? n : m;
-    if(greater > adj_list.size()){
+    if(greater >= adj_list.size()){
         for(int count = adj_list.size(); count <= greater; count++){
             vector<pair<int,int>> temp(1,pair<int,int>(0,0));
             adj_list.push_back(temp);
