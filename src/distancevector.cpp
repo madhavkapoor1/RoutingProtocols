@@ -1,6 +1,5 @@
 #include "common.hpp"
 
-
 /**
  * @brief Calculates the distance vector for the routing protocol.
  * 
@@ -59,6 +58,8 @@ void distance_vector(){
                         dist_vector[count].push_back(vec);
                     }
                     else if(dist_vector[count][dst].cost > vec.cost){
+                        dist_vector[count][dst] = vec;
+                    }else if(dist_vector[count][dst].cost == vec.cost && vec.nextHop < dist_vector[count][dst].nextHop){
                         dist_vector[count][dst] = vec;
                     }
                 }

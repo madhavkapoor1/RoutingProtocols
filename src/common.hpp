@@ -150,10 +150,6 @@ void extract_changes(char* file);
  */
 void add_hops_message(const char* filename, int src, int dest, vector<int> hops, string message);
 
-/**
- * @file node.hpp
- * @brief Contains the definition of the compare struct used for comparing tuples.
- */
 
 /**
  * @struct compare
